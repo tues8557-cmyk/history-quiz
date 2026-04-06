@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대한민국 정부 수립 역사 퀴즈</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; background-color: #f4f7f6; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; }
+        .question { margin-bottom: 30px; padding: 20px; border-bottom: 1px solid #eee; }
+        .question-text { font-weight: bold; font-size: 1.1em; margin-bottom: 15px; }
+        .options label { display: block; margin: 10px 0; cursor: pointer; padding: 10px; border-radius: 5px; background: #f9f9f9; transition: 0.3s; }
+        .options label:hover { background: #e9ecef; }
+        .btn { display: block; width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 5px; font-size: 1.2em; cursor: pointer; margin-top: 20px; }
+        .btn:hover { background: #2980b9; }
+        #result { margin-top: 20px; font-weight: bold; text-align: center; font-size: 1.5em; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🇰🇷 대한민국 정부 수립 역사 퀴즈</h1>
+        <p style="text-align: center;">초등 6학년 수준 | 총 20문제</p>
+        <hr>
+        <div id="quiz-form">
+            </div>
+        <button class="btn" onclick="calculateScore()">제출하기</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "1945년 해방 직후, 한반도의 38선 이북과 이남에 각각 들어온 나라는?", a: 0, c: ["이북-소련, 이남-미국", "이북-중국, 이남-미국", "이북-소련, 이남-영국", "이북-미국, 이남-소련", "이북-일본, 이남-미국"] },
+            { q: "1945년 12월, 한국 독립 문제를 논의하기 위해 미·영·소가 모인 회의는?", a: 1, c: ["카이로 회의", "모스크바 3국 외무장관 회의", "얄타 회의", "포츠담 회의", "유엔 총회"] },
+            { q: "모스크바 3국 외무장관 회의에서 결정된 내용 중 한국인을 분노하게 한 것은?", a: 2, c: ["즉각적 독립", "무상 몰수", "최고 5년 신탁 통치", "일본군 무장 해제", "분할 점령"] },
+            { q: "초기에 신탁 통치를 반대하다가 소련의 지시로 갑자기 찬성으로 바꾼 세력은?", a: 3, c: ["우익 진영", "미군정", "중도파", "공산주의자(좌익)", "국민회"] },
+            { q: "모스크바 협정에 따라 임시 정부 수립을 논의하기 위해 설치된 기구는?", a: 4, c: ["과도 입법 의원", "좌우 합작 위원회", "유엔 임시 위원단", "남북 연석 회의", "미·소 공동 위원회"] },
+            { q: "제1차 미·소 공동 위원회가 결렬된 주요 원인은?", a: 0, c: ["참여 단체 범위 갈등", "미국의 신탁 반대", "한국인의 방해", "수도 결정 문제", "일본의 지배권 주장"] },
+            { q: "중도파의 '좌우 합작 운동'을 이끈 대표적인 인물 두 명은?", a: 1, c: ["이승만, 김구", "김규식, 여운형", "박헌영, 김일성", "신익희, 조소앙", "안창호, 김좌진"] },
+            { q: "공산당이 경제 질서를 파괴한다는 비난을 받게 된 결정적 사건은?", a: 2, c: ["9월 총파업", "대구 사건", "조선 정판사 위조지폐 사건", "신전술 발표", "모스크바 협정 지지"] },
+            { q: "미·소 공동 위원회가 실패하자 미국은 한국 문제를 어디로 넘겼나요?", a: 1, c: ["국제사법재판소", "유엔(UN)", "유네스코", "세계은행", "유니세프"] },
+            { q: "유엔의 '남북한 총선거'를 감시하기 위해 한국에 온 단체는?", a: 0, c: ["유엔 한국 임시 위원단", "유엔 평화 유지군", "국제 적십자사", "유엔 안보리", "한미 방위 위원회"] },
+            { q: "유엔 한국 임시 위원단의 북한 방문을 거부한 나라는?", a: 2, c: ["미국", "영국", "소련", "일본", "프랑스"] },
+            { q: "북한이 선거를 거부하자 유엔은 어떤 결정을 내렸나요?", a: 3, c: ["독립 포기", "무기한 분할 점령", "일본에 반환", "가능한 지역(남한) 선거", "전쟁 선포"] },
+            { q: "분단을 막기 위해 김구와 김규식이 평양에서 연 회의는?", a: 3, c: ["모스크바 회의", "좌우 합작 위원회", "미소 공동 위원회", "남북 연석 회의", "제헌 국회"] },
+            { q: "남북 협상이 성과 없이 끝난 결정적인 배후 원인은?", a: 1, c: ["김구의 건강", "소련의 사전 지령", "남한 국민의 반대", "미군의 체포", "공산주의자 부재"] },
+            { q: "역사상 최초의 민주 선거인 '5·10 총선거'가 열린 연도는?", a: 3, c: ["1945년", "1946년", "1947년", "1948년", "1950년"] },
+            { q: "5·10 총선거로 선출된 국회의원들이 가장 먼저 한 일은?", a: 2, c: ["고속도로 건설", "전쟁 선포", "대한민국 헌법 제정", "한글 보급", "올림픽 신청"] },
+            { q: "대한민국 헌법 제1조의 내용으로 옳은 것은?", a: 2, c: ["왕이 다스리는 나라", "일본의 속국", "민주 공화국", "공산주의 국가", "투표 없는 나라"] },
+            { q: "1948년 국회에서 선출된 대한민국의 초대 대통령은?", a: 2, c: ["김구", "김규식", "이승만", "박정희", "안창호"] },
+            { q: "대한민국 정부 수립이 선포된 날짜는?", a: 4, c: ["1919년 3월 1일", "1945년 8월 15일", "1948년 5월 10일", "1948년 7월 17일", "1948년 8월 15일"] },
+            { q: "정부 수립 후 유엔으로부터 받은 국제적 승인 내용은?", a: 0, c: ["한반도 유일 합법 정부", "미국 식민지", "불법 무력 집단", "소련 보호국", "임시 과도 기구"] }
+        ];
+
+        const quizContainer = document.getElementById('quiz-form');
+        quizData.forEach((item, index) => {
+            let optionsHtml = item.c.map((choice, i) => 
+                `<label><input type="radio" name="q${index}" value="${i}"> ${i+1}. ${choice}</label>`
+            ).join('');
+            
+            quizContainer.innerHTML += `
+                <div class="question">
+                    <div class="question-text">${index + 1}. ${item.q}</div>
+                    <div class="options">${optionsHtml}</div>
+                </div>`;
+        });
+
+        function calculateScore() {
+            let score = 0;
+            quizData.forEach((item, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                if (selected && parseInt(selected.value) === item.a) score += 5;
+            });
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `점수: ${score}점 / 100점`;
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+    </script>
+</body>
+</html>
