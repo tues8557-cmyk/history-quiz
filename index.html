@@ -3,79 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>대한민국 정부 수립 역사 퀴즈</title>
+    <title>🇰🇷 대한민국 정부 수립 역사 퀴즈</title>
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; background-color: #f4f7f6; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #2c3e50; }
-        .question { margin-bottom: 30px; padding: 20px; border-bottom: 1px solid #eee; }
-        .question-text { font-weight: bold; font-size: 1.1em; margin-bottom: 15px; }
-        .options label { display: block; margin: 10px 0; cursor: pointer; padding: 10px; border-radius: 5px; background: #f9f9f9; transition: 0.3s; }
-        .options label:hover { background: #e9ecef; }
-        .btn { display: block; width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 5px; font-size: 1.2em; cursor: pointer; margin-top: 20px; }
-        .btn:hover { background: #2980b9; }
-        #result { margin-top: 20px; font-weight: bold; text-align: center; font-size: 1.5em; display: none; }
+        :root { --primary-color: #3498db; --secondary-color: #2c3e50; --success-color: #2ecc71; --error-color: #e74c3c; --bg-color: #f4f7f6; }
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .quiz-container { max-width: 600px; width: 100%; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: all 0.3s ease; }
+        .quiz-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .progress-bar { width: 100%; height: 10px; background-color: #e0e0e0; border-radius: 5px; overflow: hidden; margin-bottom: 20px; }
+        .progress { height: 100%; background-color: var(--primary-color); width: 0%; transition: width 0.3s ease; }
+        .question-box { display: none; }
+        .question-box.active { display: block; animation: fadeIn 0.5s; }
+        .question-text { font-size: 1.3em; font-weight: bold; color: var(--secondary-color); margin-bottom: 20px; }
+        .option-btn { display: block; width: 100%; padding: 15px; margin-bottom: 10px; background-color: white; border: 2px solid #ddd; border-radius: 10px; font-size: 1.1em; text-align: left; cursor: pointer; transition: all 0.2s; }
+        .option-btn:hover { background-color: #f8f9fa; border-color: var(--primary-color); }
+        .option-btn.correct { background-color: var(--success-color); color: white; border-color: var(--success-color); }
+        .option-btn.wrong { background-color: var(--error-color); color: white; border-color: var(--error-color); }
+        .feedback-box { display: none; margin-top: 20px; padding: 15px; border-radius: 10px; animation: fadeIn 0.5s; }
+        .feedback-box.correct { display: block; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback-box.wrong { display: block; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .hint-btn { background: none; border: none; color: var(--primary-color); cursor: pointer; font-size: 0.9em; text-decoration: underline; padding: 0; margin-bottom: 10px; display: block; }
+        .hint-text { display: none; background-color: #eaf2f8; padding: 10px; border-radius: 5px; color: var(--secondary-color); font-style: italic; margin-bottom: 10px; }
+        .next-btn { display: none; width: 100%; padding: 15px; background-color: var(--secondary-color); color: white; border: none; border-radius: 10px; font-size: 1.2em; cursor: pointer; margin-top: 20px; }
+        .next-btn:hover { background-color: #1a252f; }
+        .result-screen { display: none; text-align: center; animation: fadeIn 0.5s; }
+        .final-score { font-size: 3em; font-weight: bold; color: var(--primary-color); margin: 20px 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🇰🇷 대한민국 정부 수립 역사 퀴즈</h1>
-        <p style="text-align: center;">초등 6학년 수준 | 총 20문제</p>
-        <hr>
-        <div id="quiz-form">
-            </div>
-        <button class="btn" onclick="calculateScore()">제출하기</button>
-        <div id="result"></div>
+
+<div class="quiz-container">
+    <div class="quiz-header">
+        <h2>🇰🇷 역사 퀴즈</h2>
+        <div class="progress-bar"><div class="progress" id="progress"></div></div>
+        <p>문제 <span id="current-question-num">1</span> / 20</p>
     </div>
 
-    <script>
-        const quizData = [
-            { q: "1945년 해방 직후, 한반도의 38선 이북과 이남에 각각 들어온 나라는?", a: 0, c: ["이북-소련, 이남-미국", "이북-중국, 이남-미국", "이북-소련, 이남-영국", "이북-미국, 이남-소련", "이북-일본, 이남-미국"] },
-            { q: "1945년 12월, 한국 독립 문제를 논의하기 위해 미·영·소가 모인 회의는?", a: 1, c: ["카이로 회의", "모스크바 3국 외무장관 회의", "얄타 회의", "포츠담 회의", "유엔 총회"] },
-            { q: "모스크바 3국 외무장관 회의에서 결정된 내용 중 한국인을 분노하게 한 것은?", a: 2, c: ["즉각적 독립", "무상 몰수", "최고 5년 신탁 통치", "일본군 무장 해제", "분할 점령"] },
-            { q: "초기에 신탁 통치를 반대하다가 소련의 지시로 갑자기 찬성으로 바꾼 세력은?", a: 3, c: ["우익 진영", "미군정", "중도파", "공산주의자(좌익)", "국민회"] },
-            { q: "모스크바 협정에 따라 임시 정부 수립을 논의하기 위해 설치된 기구는?", a: 4, c: ["과도 입법 의원", "좌우 합작 위원회", "유엔 임시 위원단", "남북 연석 회의", "미·소 공동 위원회"] },
-            { q: "제1차 미·소 공동 위원회가 결렬된 주요 원인은?", a: 0, c: ["참여 단체 범위 갈등", "미국의 신탁 반대", "한국인의 방해", "수도 결정 문제", "일본의 지배권 주장"] },
-            { q: "중도파의 '좌우 합작 운동'을 이끈 대표적인 인물 두 명은?", a: 1, c: ["이승만, 김구", "김규식, 여운형", "박헌영, 김일성", "신익희, 조소앙", "안창호, 김좌진"] },
-            { q: "공산당이 경제 질서를 파괴한다는 비난을 받게 된 결정적 사건은?", a: 2, c: ["9월 총파업", "대구 사건", "조선 정판사 위조지폐 사건", "신전술 발표", "모스크바 협정 지지"] },
-            { q: "미·소 공동 위원회가 실패하자 미국은 한국 문제를 어디로 넘겼나요?", a: 1, c: ["국제사법재판소", "유엔(UN)", "유네스코", "세계은행", "유니세프"] },
-            { q: "유엔의 '남북한 총선거'를 감시하기 위해 한국에 온 단체는?", a: 0, c: ["유엔 한국 임시 위원단", "유엔 평화 유지군", "국제 적십자사", "유엔 안보리", "한미 방위 위원회"] },
-            { q: "유엔 한국 임시 위원단의 북한 방문을 거부한 나라는?", a: 2, c: ["미국", "영국", "소련", "일본", "프랑스"] },
-            { q: "북한이 선거를 거부하자 유엔은 어떤 결정을 내렸나요?", a: 3, c: ["독립 포기", "무기한 분할 점령", "일본에 반환", "가능한 지역(남한) 선거", "전쟁 선포"] },
-            { q: "분단을 막기 위해 김구와 김규식이 평양에서 연 회의는?", a: 3, c: ["모스크바 회의", "좌우 합작 위원회", "미소 공동 위원회", "남북 연석 회의", "제헌 국회"] },
-            { q: "남북 협상이 성과 없이 끝난 결정적인 배후 원인은?", a: 1, c: ["김구의 건강", "소련의 사전 지령", "남한 국민의 반대", "미군의 체포", "공산주의자 부재"] },
-            { q: "역사상 최초의 민주 선거인 '5·10 총선거'가 열린 연도는?", a: 3, c: ["1945년", "1946년", "1947년", "1948년", "1950년"] },
-            { q: "5·10 총선거로 선출된 국회의원들이 가장 먼저 한 일은?", a: 2, c: ["고속도로 건설", "전쟁 선포", "대한민국 헌법 제정", "한글 보급", "올림픽 신청"] },
-            { q: "대한민국 헌법 제1조의 내용으로 옳은 것은?", a: 2, c: ["왕이 다스리는 나라", "일본의 속국", "민주 공화국", "공산주의 국가", "투표 없는 나라"] },
-            { q: "1948년 국회에서 선출된 대한민국의 초대 대통령은?", a: 2, c: ["김구", "김규식", "이승만", "박정희", "안창호"] },
-            { q: "대한민국 정부 수립이 선포된 날짜는?", a: 4, c: ["1919년 3월 1일", "1945년 8월 15일", "1948년 5월 10일", "1948년 7월 17일", "1948년 8월 15일"] },
-            { q: "정부 수립 후 유엔으로부터 받은 국제적 승인 내용은?", a: 0, c: ["한반도 유일 합법 정부", "미국 식민지", "불법 무력 집단", "소련 보호국", "임시 과도 기구"] }
-        ];
+    <div id="quiz-area">
+        </div>
 
-        const quizContainer = document.getElementById('quiz-form');
-        quizData.forEach((item, index) => {
-            let optionsHtml = item.c.map((choice, i) => 
-                `<label><input type="radio" name="q${index}" value="${i}"> ${i+1}. ${choice}</label>`
-            ).join('');
-            
-            quizContainer.innerHTML += `
-                <div class="question">
-                    <div class="question-text">${index + 1}. ${item.q}</div>
-                    <div class="options">${optionsHtml}</div>
-                </div>`;
-        });
+    <div class="result-screen" id="result-screen">
+        <h2>🎉 퀴즈 완료!</h2>
+        <p class="final-score"><span id="score">0</span> / 100</p>
+        <p id="result-message"></p>
+        <button class="next-btn" style="display:inline-block;" onclick="location.reload()">다시 풀기</button>
+    </div>
+</div>
 
-        function calculateScore() {
-            let score = 0;
-            quizData.forEach((item, index) => {
-                const selected = document.querySelector(`input[name="q${index}"]:checked`);
-                if (selected && parseInt(selected.value) === item.a) score += 5;
-            });
-            const resultDiv = document.getElementById('result');
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = `점수: ${score}점 / 100점`;
-            window.scrollTo(0, document.body.scrollHeight);
+<script>
+    const quizData = [
+        { q: "1945년 해방 직후, 한반도의 38선 이북과 이남에 각각 들어온 나라는 어디인가요?", c: ["이북-소련, 이남-미국", "이북-중국, 이남-미국", "이북-소련, 이남-영국", "이북-미국, 이남-소련", "이북-일본, 이남-미국"], a: 0, h: "추운 북쪽 나라와 태평양 건너 민주주의 국가를 생각해보세요.", r: "해방 후 북위 38도선을 경계로 북쪽에는 소련군이, 남쪽에는 미군이 주둔하며 군정을 실시했습니다." },
+        { q: "1945년 12월, 한국의 독립 문제와 전후 처리를 논의하기 위해 미국, 영국, 소련이 모인 회의의 명칭은 무엇인가요?", c: ["카이로 회의", "모스크바 3국 외무장관 회의", "얄타 회의", "포츠담 회의", "유엔 총회"], a: 1, h: "러시아의 수도에서 열린 세 나라의 회의입니다.", r: "이 회의에서 한국 임시 정부 수립과 최대 5년의 신탁 통치안이 결정되었습니다." },
+        { q: "모스크바 3국 외무장관 회의에서 결정된 내용 중 한국인들을 가장 분노하게 했던 결정 사항은 무엇인가요?", c: ["즉각적인 독립 승인", "무상 몰수 무상 분배", "최고 5년 기한의 신탁 통치", "일본군 무장 해제", "한반도 분할 점령"], a: 2, h: "남의 나라가 대신 다스려준다는 뜻의 용어를 찾아보세요.", r: "강대국이 대신 다스린다는 '신탁 통치'안은 식민 지배의 연장선으로 느껴져 거센 반발을 샀습니다." },
+        { q: "1946년 1월 2일, 초기에는 신탁 통치를 반대하다가 갑자기 지지(찬성)로 입장을 바꾼 세력은 누구인가요?", c: ["우익 진영", "미군정", "중도파 세력", "공산주의자(좌익) 세력", "대한독립촉성국민회"], a: 3, h: "소련의 영향을 받던 정치 세력입니다.", r: "소련의 지령을 받은 공산주의자들은 모스크바 협정을 지지하는 쪽으로 급선회했습니다." },
+        { q: "모스크바 협정에 따라 한국 임시 정부 수립을 논의하기 위해 설치된 기구는 무엇인가요?", c: ["남조선 과도 입법 의원", "좌우 합작 위원회", "유엔 한국 임시 위원단", "남북 연석 회의", "미·소 공동 위원회"], a: 4, h: "미국과 소련의 앞 글자를 딴 위원회입니다.", r: "미국과 소련의 대표들이 모여 정부 수립 방안을 협의하기 위해 만든 공식 기구입니다." },
+        { q: "제1차 미·소 공동 위원회가 결렬된 주요 원인은 무엇인가요?", c: ["소련이 참여 단체의 범위를 제한하자고 주장해서", "미국이 신탁 통치를 반대해서", "한국인들이 회의장 진입을 막아서", "임시 정부의 수도를 정하지 못해서", "일본이 다시 지배권을 주장해서"], a: 0, h: "어떤 정당이나 단체를 회의에 참여시킬 것인지에 대한 다툼이었습니다.", r: "소련은 반탁 운동을 하는 우익 단체를 제외시키려 했고, 미국은 모든 단체 참여를 주장하며 대립했습니다." },
+        { q: "미군정이 극단적인 대립을 피하기 위해 지원했던 중도파의 '좌우 합작 운동'을 이끈 대표적인 인물 두 명은 누구인가요?", c: ["이승만, 김구", "김규식, 여운형", "박헌영, 김일성", "신익희, 조소앙", "안창호, 김좌진"], a: 1, h: "중도 우파와 중도 좌파의 결합을 생각해보세요.", r: "중도 우파인 김규식과 중도 좌파인 여운형이 좌우 합작 위원회를 구성해 활동했습니다." },
+        { q: "공산당이 경제 질서를 파괴한다는 비난을 받게 된 결정적인 사건은 무엇인가요?", c: ["9월 총파업", "대구 10.1 사건", "조선 정판사 위조지폐 사건", "신전술 발표", "모스크바 협정 지지 선언"], a: 2, h: "인쇄소에서 '가짜 돈'을 만든 사건입니다.", r: "공산당이 운영 자금을 마련하기 위해 가짜 돈을 찍어낸 사건으로 국민들의 큰 비난을 샀습니다." },
+        { q: "미·소 공동 위원회가 성과 없이 끝나자, 미국은 한국 문제를 해결하기 위해 어디로 안건을 넘겼나요?", c: ["국제사법재판소", "유엔(UN, 국제연합)", "유네스코", "세계은행", "유니세프"], a: 1, h: "세계 평화를 위해 만들어진 국제 기구입니다.", r: "미국은 더 이상 미·소 협의가 불가능하다고 판단하고 유엔에 한국 문제를 이관했습니다." },
+        { q: "유엔이 결정한 '남북한 총선거'를 실시하기 위해 한국에 들어오려 했던 단체는 무엇인가요?", c: ["유엔 한국 임시 위원단", "유엔 평화 유지군", "국제 적십자사", "유엔 안전보장 이사회", "한·미 상호 방위 조약 위원회"], a: 0, h: "선거를 '감시'하러 온 유엔 사람들의 모임입니다.", r: "유엔의 감시 하에 공정한 선거를 치르기 위해 파견된 공식 사절단입니다." },
+        { q: "유엔 한국 임시 위원단의 북한 방문을 거부한 나라는 어디인가요?", c: ["미국", "영국", "소련", "일본", "프랑스"], a: 2, h: "38선 이북을 지배하고 있던 강대국입니다.", r: "소련은 자신들에게 불리할 수 있는 유엔 감시 하의 선거를 거부하며 위원단의 입국을 막았습니다." },
+        { q: "북한이 유엔의 선거안을 거부하자, 유엔은 어떤 결정을 새로 내렸나요?", c: ["한국 독립 포기", "미국과 소련의 무기한 분할 점령", "일본에게 다시 지배권 반환", "가능한 지역(남한)에서의 단독 선거 실시", "전쟁 선포"], a: 3, h: "선거가 '가능한 곳'부터 하자는 결정이었습니다.", r: "북한이 거부하자 유엔은 가능한 지역에서만이라도 선거를 치러 정부를 세우기로 했습니다." },
+        { q: "분단을 막기 위해 김구와 김규식이 평양으로 가서 북한 지도자들을 만난 회의의 명칭은 무엇인가요?", c: ["모스크바 3국 외상 회의", "좌우 합작 위원회", "미·소 공동 위원회", "남북 연석 회의 (남북 협상)", "제헌 국회 개원식"], a: 3, h: "남과 북의 정당과 단체 대표들이 연달아 모여 앉았다는 뜻입니다.", r: "분단을 막기 위해 남북의 지도자들이 한자리에 모여 대화하려 했던 회의입니다." },
+        { q: "남북 협상을 위해 평양에 간 김구 선생의 노력에도 불구하고 회의가 성과 없이 끝난 이유는 무엇인가요?", c: ["김구 선생이 회의 도중 몸이 아파서", "소련의 지령에 따라 북한이 이미 내용을 다 짜놓았기 때문에", "남한 국민들이 협상을 반대해서", "미군이 김구 선생을 체포해서", "북한에 공산주의자가 한 명도 없어서"], a: 1, h: "소련이 미리 시나리오를 써놓았다는 점을 생각해보세요.", r: "이미 결론(남한 선거 비난)이 정해진 상태에서 들러리를 세우려는 의도가 강했습니다." },
+        { q: "우리 역사상 최초로 국민이 직접 참여하여 투표한 민주 선거인 '5·10 총선거'가 열린 연도는?", c: ["1945년", "1946년", "1947년", "1948년", "1950년"], a: 3, h: "정부가 세워지기 바로 몇 달 전입니다.", r: "이 해에 총선거가 실시되고 대한민국 정부가 수립되었습니다." },
+        { q: "5·10 총선거를 통해 선출된 국회의원들이 모여 가장 먼저 한 중요한 일은 무엇인가요?", c: ["경부고속도로 건설", "전쟁 선포", "대한민국 법률인 '헌법' 제정", "한글 보급 운동", "올림픽 개최 신청"], a: 2, h: "나라의 근본이 되는 '가장 높은 법'을 만드는 것입니다.", r: "나라의 기틀을 잡기 위해 가장 먼저 대한민국 헌법을 만들고 공포했습니다." },
+        { q: "대한민국 헌법 제1조의 내용으로 옳은 것은 무엇인가요?", c: ["대한민국은 왕이 다스리는 나라이다.", "대한민국은 일본의 속국이다.", "대한민국은 민주 공화국이다.", "대한민국은 공산주의 국가이다.", "대한민국은 투표를 하지 않는 나라이다."], a: 2, h: "국민이 주인인 '공화국'을 찾아보세요.", r: "헌법 제1조 1항에 명시된 내용으로, 국민이 주인인 나라임을 뜻합니다." },
+        { q: "1948년 7월 20일, 국회의원들이 선출한 대한민국의 초대 대통령은 누구인가요?", c: ["김구", "김규식", "이승만", "박정희", "안창호"], a: 2, h: "오랫동안 독립 운동을 하고 단독 정부 수립을 주장했던 분입니다.", r: "초대 국회의장을 지낸 이승만이 국회에서의 간접 선거를 통해 초대 대통령으로 당선되었습니다." },
+        { q: "대한민국 정부 수립이 선포된 역사적인 날짜는 언제인가요?", c: ["1919년 3월 1일", "1945년 8월 15일", "1948년 5월 10일", "1948년 7월 17일", "1948년 8월 15일"], a: 4, h: "해방된 날로부터 정확히 3년이 지난 날입니다.", r: "해방 3주년이 되는 날, 대한민국 정부 수립을 전 세계에 선포했습니다." },
+        { q: "대한민국 정부가 수립된 이후, 국제 사회(유엔)로부터 어떤 승인을 받았나요?", c: ["한반도의 유일한 합법 정부", "미국의 식민지 상태 유지", "불법 무력 집단", "소련의 보호국", "임시적인 과도 기구"], a: 0, h: "전 세계가 인정한 '진짜 정부'라는 뜻입니다.", r: "유엔은 총선거를 통해 정당하게 세워진 대한민국을 한반도의 유일한 합법 정부로 인정했습니다." }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let isAnswered = false;
+
+    const quizArea = document.getElementById('quiz-area');
+    const progressBar = document.getElementById('progress');
+    const currentNumSpan = document.getElementById('current-question-num');
+    const resultScreen = document.getElementById('result-screen');
+    const scoreSpan = document.getElementById('score');
+
+    function loadQuestion() {
+        isAnswered = false;
+        const data = quizData[currentQuestionIndex];
+        
+        // 업데이트 헤더 및 프로그레스 바
+        currentNumSpan.innerText = currentQuestionIndex + 1;
+        progressBar.style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+
+        let optionsHtml = data.c.map((choice, i) => 
+            `<button class="option-btn" onclick="checkAnswer(this, ${i})">${i+1}. ${choice}</button>`
+        ).join('');
+
+        quizArea.innerHTML = `
+            <div class="question-box active">
+                <div class="question-text">${data.q}</div>
+                
+                <button class="hint-btn" onclick="toggleHint(this)">💡 힌트 보기</button>
+                <div class="hint-text">${data.h}</div>
+
+                <div class="options">
+                    ${optionsHtml}
+                </div>
+                <div class="feedback-box" id="feedback"></div>
+                <button class="next-btn" id="next-btn" onclick="nextQuestion()">다음 문제 ▶</button>
+            </div>
+        `;
+    }
+
+    function toggleHint(btn) {
+        const hintText = btn.nextElementSibling;
+        hintText.style.display = hintText.style.display === 'block' ? 'none' : 'block';
+        btn.innerText = hintText.style.display === 'block' ? '💡 힌트 닫기' : '💡 힌트 보기';
+    }
+
+    function checkAnswer(selectedBtn, selectedIndex) {
+        if (isAnswered) return; // 이미 정답을 맞췄으면 클릭 불가
+        isAnswered = true;
+
+        const data = quizData[currentQuestionIndex];
+        const feedbackBox = document.getElementById('feedback');
+        const nextBtn = document.getElementById('next-btn');
+        const allOptions = document.querySelectorAll('.option-btn');
+
+        // 모든 버튼 일단 비활성화
+        allOptions.forEach(btn => btn.style.cursor = 'default');
+
+        if (selectedIndex === data.a) {
+            // 정답일 때
+            selectedBtn.classList.add('correct');
+            score += 5;
+            feedbackBox.innerHTML = `<strong>정답입니다! 🎉</strong><br>${data.r}`;
+            feedbackBox.className = "feedback-box correct";
+        } else {
+            // 오답일 때
+            selectedBtn.classList.add('wrong');
+            // 정답 버튼을 표시해줌
+            allOptions[data.a].classList.add('correct');
+            feedbackBox.innerHTML = `<strong>아쉽네요, 오답입니다. 😥</strong><br>정답은 ${data.a + 1}번입니다.<br><br>${data.r}`;
+            feedbackBox.className = "feedback-box wrong";
         }
-    </script>
+
+        nextBtn.style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.querySelector('.quiz-header').style.display = 'none';
+        quizArea.style.display = 'none';
+        resultScreen.style.display = 'block';
+        scoreSpan.innerText = score;
+        
+        let message = "";
+        if(score >= 90) message = "와우! 역사 박사님이시네요! 🏆";
+        else if(score >= 70) message = "우리 역사를 아주 잘 이해하고 있군요! 👍";
+        else message = "본문의 내용을 다시 한번 읽어보면 도움이 될 거예요! 😊";
+        document.getElementById('result-message').innerText = message;
+    }
+
+    // 첫 번째 문제 로드
+    loadQuestion();
+</script>
+
 </body>
 </html>
